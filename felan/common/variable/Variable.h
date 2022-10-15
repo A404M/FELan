@@ -26,13 +26,13 @@ namespace felan {
 
         Variable(Node &node,MakePackage *mp,Parent _parent);
         explicit Variable(std::string _name);
-        Variable(const Variable &) = default;
-        Variable(Variable &&) = default;
+        Variable(const Variable &) = delete;
+        Variable(Variable &&) = delete;
 
         ~Variable();
 
-        Variable &operator=(const Variable&) = default;
-        Variable &operator=(Variable&&) = default;
+        Variable &operator=(const Variable&) = delete;
+        Variable &operator=(Variable&&) = delete;
 
         [[nodiscard]] bool isIncomplete() const;
 

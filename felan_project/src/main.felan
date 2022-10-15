@@ -1,9 +1,9 @@
 from felan.lang.system      import *
 from felan.lang.primitive   import *
-from felan.lang.string      import *
+//from felan.lang.string      import *
 
-fun f(){
-    print(7)
+fun f(var v:Int){
+    print(v)
 }
 
 fun main(){
@@ -13,5 +13,5 @@ fun main(){
     a = 2
     a = 4
     print(a)
-    f()
+    f(99)
 }

@@ -27,13 +27,13 @@ namespace felan {
 
         Fun(Node &node,MakePackage *mp,Parent _parent);
         explicit Fun(std::string _name);
-        Fun(const Fun &) = default;
-        Fun(Fun &&) = default;
+        Fun(const Fun &fun) = delete;
+        Fun(Fun &&fun) noexcept = delete;
 
         ~Fun();
 
-        Fun &operator=(const Fun &) = default;
-        Fun &operator=(Fun &&fun) noexcept = default;
+        Fun &operator=(const Fun &fun) = delete;
+        Fun &operator=(Fun &&fun) noexcept = delete;
 
         [[nodiscard]] bool isIncomplete() const;
 

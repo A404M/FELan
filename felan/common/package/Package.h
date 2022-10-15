@@ -38,6 +38,8 @@ namespace felan {
 
             ~Element();
 
+            void clear();
+
             template<class T>
             T &getAs(){
                 return *((T*)this->pointer);

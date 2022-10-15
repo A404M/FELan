@@ -90,13 +90,15 @@ namespace felan {
     }
 
     Variable *Fun::addVar(Node &node, MakePackage *mp) {
-        Variable var(node,mp,Parent(this));
+        auto varP = new Variable(node,mp,Parent(this));
         for(const auto &variable : this->vars){
-            if(variable->name == var.name){
-                throw SyntaxError("multiple definition of variable "+var.name);
+            if(variable->name == varP->name){
+                std::string temp = std::move(varP->name);
+                delete varP;
+                throw SyntaxError("multiple definition of variable "+temp);
             }
         }
-        return this->vars.emplace_back(new Variable(std::move(var)));
+        return this->vars.emplace_back(varP);
     }
 
     Variable *Fun::findVar(std::string_view varName){

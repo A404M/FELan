@@ -25,6 +25,11 @@ namespace felan {
 
         Class(Node &node, MakePackage *mp, Package *_father);
         explicit Class(std::string _name);
+        Class(const Class &) = delete;
+        Class(Class &&) = delete;
+
+        Class &operator=(const Class &) = delete;
+        Class &operator=(Class &&) = delete;
 
         void makeBody(MakePackage *mp);
         void completeBody(MakePackage *mp);

@@ -16,6 +16,10 @@ namespace felan {
     }
 
     Package::Element::~Element() {
+        this->clear();
+    }
+
+    void Package::Element::clear() {
         if(!owns)
             return;
         switch(kind){
@@ -36,6 +40,9 @@ namespace felan {
             default:
                 throw std::runtime_error("pointer is broken");
         }
+        this->pointer = nullptr;
+        this->kind = NONE;
+        this->owns = false;
     }
 
     Package::Element::Element(Package::Element &&element) noexcept {

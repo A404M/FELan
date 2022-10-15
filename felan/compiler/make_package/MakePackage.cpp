@@ -168,17 +168,23 @@ namespace felan {
     }
 
     void MakePackage::doClass(Node &node, Package &pack) {
-        Class clas(node,this,&pack);
-        if(isCompleteGlobalElementExist(&clas,Package::Element::CLASS)){
+        auto classP = new Class(node,this,&pack);
+        if(isCompleteGlobalElementExist(classP,Package::Element::CLASS)){
             MULTIPLE_DEF:
-            throw std::runtime_error("multiple definition of class "+clas.name);
+            std::string temp = std::move(classP->name);
+            delete classP;
+            throw std::runtime_error("multiple definition of class "+temp);
         }
-        auto elp = pack.find(&clas,Package::Element::CLASS);
+        auto elp = pack.find(classP,Package::Element::CLASS);
         auto p = (Class*)(elp!=nullptr?elp->pointer:nullptr);
         if(p == nullptr){
-            p = (Class*)pack.push(new Class(std::move(clas)),Package::Element::CLASS,true);
+            p = (Class*)pack.push(classP,Package::Element::CLASS,true);
         }else if(p->isIncomplete()){
-            *p = std::move(clas);
+            elp->clear();
+            elp->pointer = classP;
+            elp->kind = Package::Element::CLASS;
+            elp->owns = true;
+            p = classP;
         }else{
             goto MULTIPLE_DEF;
         }
@@ -186,17 +192,23 @@ namespace felan {
     }
 
     void MakePackage::doFun(Node &node, Package &pack) {
-        Fun fun(node,this,Parent(&pack));
-        if(isCompleteGlobalElementExist(&fun,Package::Element::FUN)){
+        auto funP = new Fun(node,this,Parent(&pack));
+        if(isCompleteGlobalElementExist(funP,Package::Element::FUN)){
             MULTIPLE_DEF:
-            throw std::runtime_error("multiple definition of fun "+fun.name);
+            std::string temp = std::move(funP->name);
+            delete funP;
+            throw std::runtime_error("multiple definition of fun "+temp);
         }
-        auto elp = pack.find(&fun,Package::Element::CLASS);
+        auto elp = pack.find(funP,Package::Element::FUN);
         auto p = (Fun*)(elp!=nullptr?elp->pointer:nullptr);
         if(p == nullptr){
-            p = (Fun*)pack.push(new Fun(std::move(fun)),Package::Element::FUN,true);
+            p = (Fun*)pack.push(funP,Package::Element::FUN,true);
         }else if(p->isIncomplete()){
-            *p = std::move(fun);
+            elp->clear();
+            elp->pointer = funP;
+            elp->kind = Package::Element::FUN;
+            elp->owns = true;
+            p = funP;
         }else{
             goto MULTIPLE_DEF;
         }
@@ -204,17 +216,23 @@ namespace felan {
     }
 
     void MakePackage::doVariable(Node &node, Package &pack) {
-        Variable var{node,this,Parent(&pack)};
-        if(isCompleteGlobalElementExist(&var,Package::Element::VARIABLE)){
+        auto varP = new Variable{node,this,Parent(&pack)};
+        if(isCompleteGlobalElementExist(varP,Package::Element::VARIABLE)){
             MULTIPLE_DEF:
-            throw std::runtime_error("multiple definition of variable "+var.name);
+            std::string temp = std::move(varP->name);
+            delete varP;
+            throw std::runtime_error("multiple definition of variable "+temp);
         }
-        auto elp = pack.find(&var,Package::Element::CLASS);
+        auto elp = pack.find(varP,Package::Element::VARIABLE);
         auto p = (Variable*)(elp!=nullptr?elp->pointer:nullptr);
         if(p == nullptr){
-            p = (Variable*)pack.push(new Variable(std::move(var)),Package::Element::VARIABLE,true);
+            p = (Variable*)pack.push(varP,Package::Element::VARIABLE,true);
         }else if(p->isIncomplete()){
-            *p = std::move(var);
+            elp->clear();
+            elp->pointer = varP;
+            elp->kind = Package::Element::VARIABLE;
+            elp->owns = true;
+            p = varP;
         }else{
             goto MULTIPLE_DEF;
         }

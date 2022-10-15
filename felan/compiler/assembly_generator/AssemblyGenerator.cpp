@@ -115,26 +115,26 @@ namespace felan {
 
     std::string AssemblyGenerator::pushOperand(Expression::Operand &operand) {
         switch(operand.kind){
-                case Expression::Operand::INT:
-                    addConst(
-                            "%"+*(std::string*)operand.pointer,
-                            *(std::string*)operand.pointer
-                    );
-                    return "SPUSH %"+*(std::string*)operand.pointer;
-                case Expression::Operand::STRING:
-                    addConst(
-                            "%%"+*(std::string*)operand.pointer,
-                            '\"'+*(std::string*)operand.pointer+'\"'
-                    );
-                    return "SPUSH %%"+*(std::string*)operand.pointer;
-                case Expression::Operand::VARIABLE:
-                    return pushVar((Variable*)operand.pointer);
-                case Expression::Operand::EXPRESSION:
-                    return compileExpression((Expression*)operand.pointer);
-                case Expression::Operand::NONE:
-                default:
-                    throw std::runtime_error("broken expr");
-            }
+            case Expression::Operand::INT:
+                addConst(
+                        "%"+*(std::string*)operand.pointer,
+                        *(std::string*)operand.pointer
+                );
+                return "SPUSH %"+*(std::string*)operand.pointer;
+            case Expression::Operand::STRING:
+                addConst(
+                        "%%"+*(std::string*)operand.pointer,
+                        '\"'+*(std::string*)operand.pointer+'\"'
+                );
+                return "SPUSH %%"+*(std::string*)operand.pointer;
+            case Expression::Operand::VARIABLE:
+                return pushVar((Variable*)operand.pointer);
+            case Expression::Operand::EXPRESSION:
+                return compileExpression((Expression*)operand.pointer);
+            case Expression::Operand::NONE:
+            default:
+                throw std::runtime_error("broken expr");
+        }
     }
 
     std::string AssemblyGenerator::popVar(Variable *var) {

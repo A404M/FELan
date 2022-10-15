@@ -119,7 +119,7 @@ namespace felan {
                     addConst(
                             "%"+*(std::string*)operand.pointer,
                             *(std::string*)operand.pointer
-                            );
+                    );
                     return "SPUSH %"+*(std::string*)operand.pointer;
                 case Expression::Operand::STRING:
                     addConst(

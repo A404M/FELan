@@ -40,7 +40,7 @@ namespace felan {
 
         void addConst(std::string key,std::string value);
 
-        std::string getSign(Fun *fun);
+        static std::string getSign(Fun *fun);
     };
 
 } // felan

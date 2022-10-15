@@ -17,7 +17,6 @@ namespace felan {
         Fun *mainFun;
         std::map<void *,std::string> names;
         std::map<std::string,std::string> constValues;
-        std::vector<std::string> subRoutines;
 
         std::vector<std::string> functions;
     public:

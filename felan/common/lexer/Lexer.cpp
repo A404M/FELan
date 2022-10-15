@@ -97,14 +97,24 @@ namespace felan {
             } else if (isStringSymbol(current)) {//starting of string
                 push_clear_ifn_empty(node);//push anything before the string
                 node.token = Node::T_STR;
+                bool wasBackSlash = false;
                 for (++it; it < end; ++it) {
                     char c = *it;
-                    if(c == current && *(it-1) != '\\'){//end of the string
+                    if(c == current && !wasBackSlash){//end of the string
                         break;
+                    }
+                    if(isBackSlash(c)){
+                        wasBackSlash = !wasBackSlash;
+                    }else{
+                        wasBackSlash = false;
                     }
                     node.str += c;//push each decoded character of the string
                 }
+                if(it >= end){
+                    throw std::runtime_error("ending string not found");
+                }
                 //string doesn't contain beginning and ending '"'
+                push_clear(node);
                 continue;//don't push the end
             } else if (isNumber(current)) {
                 if (node.token == Node::T_ID) {

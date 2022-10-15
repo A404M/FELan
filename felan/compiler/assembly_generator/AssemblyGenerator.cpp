@@ -22,6 +22,8 @@ namespace felan {
             code += '\n';
         }
         code += ".code\n";
+        code += callFun(mainFun);
+        code += "\nEXIT\n";
         for(auto &function : functions){
             code += function;
             code += '\n';
@@ -62,7 +64,10 @@ namespace felan {
     }
 
     void AssemblyGenerator::compileFun(Fun *fun) {
-        std::string &code = functions.emplace_back();
+        if(names.contains(fun)){
+            return;
+        }
+        std::string code;
         code += '#';
         code += getName(fun);
         code += '\n';
@@ -77,6 +82,8 @@ namespace felan {
             code += '\n';
         }
         code += "RET";
+        functions.emplace_back(code);
+        names.emplace(fun,getName(fun));
     }
 
     std::string AssemblyGenerator::compileExpression(Expression *expr) {

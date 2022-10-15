@@ -1,0 +1,6 @@
+PROJECT_ROOT                /home/a404m/ProgrammingProjects/CLionProjects/FELan/felan_project/
+FELAN_STDLIB_HOME           $PROJECT_ROOT/felan_stdlib/
+FELAN_STDLIB_NATIVE_HOME    $PROJECT_ROOT/felan_stdlib_native/
+SOURCE_HOME                 $PROJECT_ROOT/src/
+MAIN_FILE_NAME              main
+MAIN_FILE                   $SOURCE_HOME/$MAIN_FILE_NAME.felan

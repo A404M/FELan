@@ -1,0 +1,14 @@
+from felan.lang.system      import *
+from felan.lang.primitive   import *
+//from felan.lang.string      import *
+
+fun f(){
+    print(4)
+}
+
+fun main(){
+    //val str:String = "a\\"
+    var a:Int = Int.__constructor__()
+    a = 1+2
+    f()
+}

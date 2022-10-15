@@ -1,0 +1,29 @@
+package felan.lang
+
+from felan.lang.string import String
+
+close class Int {
+    public builtin fun __constructor__()
+    public builtin fun __constructor__(val v:Int)
+
+    public builtin fun toString():String
+
+    public builtin fun __positive__():Int
+    public builtin fun __negative__():Int
+
+    public builtin fun __plus__(val v:Int):Int
+    public builtin fun __minus__(val v:Int):Int
+
+    //public builtin fun __assign__(val v:Int):Int
+}
+
+/*close class Bool {
+    public builtin fun __constructor__()
+    public builtin fun __constructor__(val v:Bool)
+
+    public builtin fun toString():String
+
+    public builtin fun __in_if__()
+
+    //public builtin fun __assign__(val v:Bool):Bool
+}*/

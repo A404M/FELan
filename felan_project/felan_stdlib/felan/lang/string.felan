@@ -1,0 +1,12 @@
+package felan.lang
+
+close class String {
+    public builtin fun __constructor__()
+    public builtin fun __constructor__(val str:String)
+
+    public builtin fun toString():String
+
+    public builtin fun __plus__(val str:String):String
+
+    //public builtin fun __assign__(val str:String):String
+}

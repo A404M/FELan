@@ -4,7 +4,7 @@ project(FELan)
 set(CMAKE_CXX_COMPILER "g++")
 
 set(CMAKE_CXX_STANDARD 23)
-if(0)
+if(1)
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -O3")
 else()
     set(CMAKE_CXX_FLAGS "-g")

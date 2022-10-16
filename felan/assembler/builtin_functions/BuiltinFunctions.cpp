@@ -11,6 +11,9 @@ namespace felan {
     BuiltinFunctions::FunctionHolder BuiltinFunctions::functionHolder = {
             felan_lang_system_print$felan_lang_primitive_Int$,
             felan_lang_system_print$felan_lang_string_String$,
+            felan_lang_system_println$$,
+            felan_lang_system_println$felan_lang_primitive_Int$,
+            felan_lang_system_println$felan_lang_string_String$,
             felan_lang_system_garbageCollector$$,
 
             felan_lang_primitive_Int___constructor__$$,
@@ -33,6 +36,9 @@ namespace felan {
     const BuiltinFunctions::FunctionToIndex BuiltinFunctions::functionToIndex = {
             {"felan.lang.system.print(felan.lang.primitive.Int)",++secondIndexInit},
             {"felan.lang.system.print(felan.lang.string.String)",++secondIndexInit},
+            {"felan.lang.system.println()",++secondIndexInit},
+            {"felan.lang.system.println(felan.lang.primitive.Int)",++secondIndexInit},
+            {"felan.lang.system.println(felan.lang.string.String)",++secondIndexInit},
             {"felan.lang.system.garbageCollector()",++secondIndexInit},
 
             {"felan.lang.primitive.Int.__constructor__()",++secondIndexInit},
@@ -58,6 +64,19 @@ namespace felan {
 
     void BuiltinFunctions::felan_lang_system_print$felan_lang_string_String$(Environment &env) {
         ((felan_lang_string_String*)env.stackPop())->print();
+    }
+
+    void BuiltinFunctions::felan_lang_system_println$$(Environment &env){
+        std::cout << std::endl;
+    }
+
+    void BuiltinFunctions::felan_lang_system_println$felan_lang_primitive_Int$(Environment &env){
+        std::cout << *(uint64_t*)env.stackPop() << std::endl;
+    }
+
+    void BuiltinFunctions::felan_lang_system_println$felan_lang_string_String$(Environment &env) {
+        ((felan_lang_string_String*)env.stackPop())->print();
+        std::cout << std::endl;
     }
 
     void BuiltinFunctions::felan_lang_system_garbageCollector$$(Environment &env) {

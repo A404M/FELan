@@ -2,8 +2,10 @@ from felan.lang.system      import *
 from felan.lang.primitive   import *
 //from felan.lang.string      import *
 
-fun f(var v:Int){
-    print(v)
+fun f(var v:Int,var v2:Int){
+    println()
+    println(v)
+    println(v2)
 }
 
 fun main(){
@@ -13,5 +15,5 @@ fun main(){
     a = 2
     a = 4
     print(a)
-    f(99)
+    f(99,12)
 }

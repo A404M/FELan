@@ -24,6 +24,9 @@ namespace felan {
     private:
         static inline void felan_lang_system_print$felan_lang_primitive_Int$(Environment &env);
         static inline void felan_lang_system_print$felan_lang_string_String$(Environment &env);
+        static inline void felan_lang_system_println$$(Environment &env);
+        static inline void felan_lang_system_println$felan_lang_primitive_Int$(Environment &env);
+        static inline void felan_lang_system_println$felan_lang_string_String$(Environment &env);
         static inline void felan_lang_system_garbageCollector$$(Environment &env);
 
         static inline void felan_lang_primitive_Int___constructor__$$(Environment &env);

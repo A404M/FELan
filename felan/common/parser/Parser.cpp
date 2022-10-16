@@ -132,13 +132,13 @@ namespace felan {
                 it->sToken = Node::ST_BETWEEN;
             }
         }else if(it != begin && isOperand(*(it-1))){
-            if(it != end && isOperand(*(it+1))){
+            if(it+1 < end && isOperand(*(it+1))){
                 it->sToken = Node::ST_BOTH;
             }else{
                 it->sToken = Node::ST_LEFT;
             }
         }else{
-            if(it != end && isOperand(*(it+1))){
+            if(it+1 < end && isOperand(*(it+1))){
                 it->sToken = Node::ST_RIGHT;
             }else{
                 it->sToken = Node::ST_NONE;

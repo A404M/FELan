@@ -7,6 +7,7 @@ public builtin fun print(val v:Int)
 public builtin fun print(val v:String)
 //public builtin fun print(val v:Bool)
 
+public builtin fun println()
 public builtin fun println(val v:Int)
 public builtin fun println(val v:String)
 //public builtin fun println(val v:Bool)

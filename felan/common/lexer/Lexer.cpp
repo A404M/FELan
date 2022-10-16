@@ -184,7 +184,8 @@ namespace felan {
             default:
                 throw std::runtime_error("unknown token in Lexer::push_clear");
         }
-        std::swap(holder.emplace_back(),node);//to make node clear and push in the smae time
+        //to make node clear and push in the same time
+        std::swap(holder.emplace_back(),node);
     }
 
     void Lexer::push_clear_ifn_empty(Node &node) {

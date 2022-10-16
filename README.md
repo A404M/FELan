@@ -5,8 +5,8 @@ FELan is an Object-Oriented Programming Language made by Ahmad Mahmoudi. This la
 
 ## Sample code
 ```
-from felan.lang.system import *
-from felan.lang.primitives import *
+from felan.lang.system          import *
+from felan.lang.primitives      import *
 
 fun main(){
     var variable:Int = Int.__constructor__(3);

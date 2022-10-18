@@ -228,6 +228,8 @@ namespace felan {
                         throw std::runtime_error("no function found");
                     }
                     fun = (Fun*)elP->pointer;
+                    //todo make this one correct and delete the past
+                    //auto pair = dotToString(node.operands.front());
                 }else{
                     funName = node.operands.front().str;
                     if(parentFun->parent.kind == Parent::CLASS){
@@ -318,5 +320,15 @@ namespace felan {
         }
         delete elPFirst;
         return elP;
+    }
+
+    std::pair<std::string, std::string> Expression::dotToString(Node &n) {
+        std::string path;
+        Node *np = &n;
+        do{
+            path += np->operands.front().str;
+            np = &np->operands.back();
+        }while(np->equals(Node::OP_DOT));
+        return {path,np->str};
     }
 } // felan

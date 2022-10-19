@@ -9,8 +9,8 @@ from felan.lang.system          import *
 from felan.lang.primitives      import *
 
 fun main(){
-    var variable:Int = Int.__constructor__();
+    var variable:Int = Int.__constructor__()
     variable = 3+4
-    println(variable + 7);
+    println(variable + 7)
 }
 ```

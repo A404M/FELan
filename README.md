@@ -14,3 +14,4 @@ fun main(){
     println(variable + 7)
 }
 ```
+for more codes goto [sample project](https://github.com/A404M/FELan/tree/master/felan_project)

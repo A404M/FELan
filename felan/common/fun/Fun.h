@@ -7,6 +7,7 @@
 
 #include <felan/common/node/Node.h>
 #include <felan/common/variable/Variable.h>
+#include <felan/common/package/Package.h>
 
 namespace felan {
     class Expression;

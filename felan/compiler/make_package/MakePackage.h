@@ -27,10 +27,10 @@ namespace felan {
     public:
         MakePackage(Parser _parser, const std::string& filePath, CompilerFrontend *_cf);
         MakePackage(const MakePackage &) = delete;
-        MakePackage(MakePackage &&) = default;
+        MakePackage(MakePackage &&) = delete;
 
         MakePackage &operator=(const MakePackage &) = delete;
-        MakePackage &operator=(MakePackage &&) = default;
+        MakePackage &operator=(MakePackage &&) = delete;
 
         static void clearRootPackage(){
             rootPackage.clear();

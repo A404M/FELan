@@ -14,7 +14,7 @@ fun main(){
     var a:Int = Int.__constructor__()
     a = 4
     var f:Int = Int.__constructor__()
-    f = 3
+    f = 3+2-4
     print(a)
     f(f,a)
 }

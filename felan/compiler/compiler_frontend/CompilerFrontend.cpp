@@ -4,7 +4,6 @@
 
 #include "CompilerFrontend.h"
 #include <fstream>
-#include <sstream>
 #include <algorithm>
 #include <filesystem>
 #include <felan/compiler/assembly_generator/AssemblyGenerator.h>
@@ -32,6 +31,12 @@ namespace felan {
         }
     }
 
+    CompilerFrontend::~CompilerFrontend() {
+        for(auto &pair : makeFiles){
+            delete pair.second;
+        }
+    }
+
     std::string CompilerFrontend::parseStringWithConsts(std::string str) {
         decltype(str)::iterator it;
         while((it = std::find(str.begin(),str.end(),'$'))!=str.end()){
@@ -45,22 +50,23 @@ namespace felan {
         return str;
     }
 
-    Package *getPack(Package *pack,int i){
-        return (Package*)pack->elements[i].pointer;
-    }
-
     std::string CompilerFrontend::compile() {
-        auto mainFile = makeFiles.emplace(consts.at("MAIN_FILE"),MakePackage(getParsed(consts.at("MAIN_FILE")), consts.at("MAIN_FILE_NAME"), this));
+        auto mainFile = makeFiles.emplace(
+                consts.at("MAIN_FILE"),
+                new MakePackage(
+                        getParsed(consts.at("MAIN_FILE")),
+                        consts.at("MAIN_FILE_NAME"), this)
+                );
         for(auto &file : makeFiles){
-            file.second.doMakeClassBodies();
+            file.second->doMakeClassBodies();
         }
         for(auto &file : makeFiles){
-            file.second.doComplete();
+            file.second->doComplete();
         }
         Fun mainFunSign{"main"};
         mainFunSign.arguments = {};
         auto mainFunElP = mainFile.first->
-                second.globalElements.
+                second->globalElements.
                 find(&mainFunSign,Package::Element::FUN);
         if(mainFunElP == nullptr){
             throw NotFoundError("no main function found");
@@ -69,24 +75,18 @@ namespace felan {
         return assemblyGenerator.compile();
     }
 
-    Parser &CompilerFrontend::getParsed(const std::string &filePath) {
-        auto it = fileCache.find(filePath);
-        if(it != fileCache.end()){
-            return it->second;
-        }else{
-            auto parsed = Parser(Lexer(readFile(filePath)));
-            return fileCache.emplace(filePath,parsed).first->second;
-        }
+    Parser CompilerFrontend::getParsed(const std::string &filePath) {
+        return Parser(Lexer(readFile(filePath)));
     }
 
     MakePackage &CompilerFrontend::getMakeFile(const std::string &filePath) {
         auto it = makeFiles.find(filePath);
         if(it != makeFiles.end()){
-            return it->second;
+            return *it->second;
         }
-        return makeFiles.emplace(
+        return *makeFiles.emplace(
                 filePath,
-                MakePackage(
+                new MakePackage(
                         getParsed(filePath),
                         getFileName(filePath),
                         this

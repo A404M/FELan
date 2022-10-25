@@ -18,7 +18,6 @@ namespace felan {
         {Node::OP_ASSIGN,"__assign__"},
         //{Node::OP_COMMA,""}
     };
-    std::vector<std::string> Expression::values{};
 
     Expression::Operand::Operand(void *_pointer, Expression::Operand::Kind _kind,bool _owns)
     : pointer(_pointer), kind(_kind), owns(_owns){
@@ -58,24 +57,29 @@ namespace felan {
         return *this;
     }
 
-    Class *Expression::Operand::getType() {
+    Class *Expression::Operand::getType(MakePackage *mp) const {
+        Class *type;
         switch(this->kind){
             case INT:
-                return (Class*)MakePackage::rootPackage
-                .getByPath("felan.lang.primitive.Int",
-                           Package::Element::CLASS)->pointer;
+                type = mp->findClass("Int");
+                break;
             case STRING:
-                return (Class*)MakePackage::rootPackage
-                .getByPath("felan.lang.string.String",
-                           Package::Element::CLASS)->pointer;
+                type = mp->findClass("String");
+                break;
             case EXPRESSION:
-                return ((Expression*)this->pointer)->fun->retType;
+                type = ((Expression*)this->pointer)->fun->retType;
+                break;
             case VARIABLE:
-                return ((Variable*)this->pointer)->type;
+                type = ((Variable*)this->pointer)->type;
+                break;
             case NONE:
             default:
                 throw std::runtime_error("broken kind");
         }
+        if(type == nullptr){
+            throw NotFoundError("Type not found");
+        }
+        return type;
     }
 
     Expression::Expression(Node &node, MakePackage *mp, Fun *parentFun) :
@@ -94,17 +98,9 @@ namespace felan {
             auto &n = *it;
             switch(n.token){
                 case Node::T_STR:
-                    arguments.emplace_back((Class*)mp->findGlobal("String",Package::Element::CLASS));
-                    if(arguments.back() == nullptr){
-                        throw std::runtime_error("String class not found");
-                    }
                     this->operands.emplace_back(new std::string(n.str),Operand::STRING,true);
                     break;
                 case Node::T_NUM:
-                    arguments.emplace_back((Class*)mp->findGlobal("Int",Package::Element::CLASS));
-                    if(arguments.back() == nullptr){
-                        throw std::runtime_error("Int class not found");
-                    }
                     this->operands.emplace_back(new std::string(n.str),Operand::INT,true);
                     break;
                 case Node::T_ID:{
@@ -129,7 +125,6 @@ namespace felan {
                             }
                         }
                     }
-                    arguments.emplace_back(((Variable*)this->operands.back().pointer)->type);
                 }break;
                 case Node::T_OP: {
                     if(n.equals(Node::OP_DOT)) {
@@ -149,10 +144,6 @@ namespace felan {
                         }
                     }else{
                         this->operands.emplace_back(new Expression(n,mp,parentFun),Operand::EXPRESSION,true);
-                        arguments.emplace_back(((Expression*)this->operands.back().pointer)->fun->retType);
-                        if(arguments.back() == nullptr){
-                            throw std::runtime_error("argument function returns nothing");
-                        }
                     }
                 }break;
                 case Node::T_KW: {
@@ -161,13 +152,13 @@ namespace felan {
                     auto varName = n.operands.front().str;
                     Expression(n, mp, parentFun);
                     this->operands.emplace_back(parentFun->findVar(varName), Operand::VARIABLE,false);
-                    arguments.emplace_back(((Variable *) this->operands.back().pointer)->type);
                 }break;
                 case Node::T_SML:
                 case Node::T_NONE:
                 default:
                     throw std::runtime_error("unexpected token");
             }
+            arguments.emplace_back(this->operands.back().getType(mp));
         }
 
         switch(node.sToken){
@@ -176,24 +167,10 @@ namespace felan {
             case Node::ST_BOTH:
                 funName = opToStr.at(node);
                 switch(this->operands.front().kind){
-                    case Operand::INT:{
-                        auto clas = (Class*)mp->findGlobal("Int",Package::Element::CLASS);
-                        if(clas == nullptr){
-                            throw std::runtime_error("class Int not found");
-                        }
-                        arguments.erase(arguments.begin());
-                        this->fun = clas->getMethod(funName,arguments);
-                    }break;
-                    case Operand::STRING:{
-                        auto clas = (Class*)mp->findGlobal("String",Package::Element::CLASS);
-                        if(clas == nullptr){
-                            throw std::runtime_error("class String not found");
-                        }
-                        arguments.erase(arguments.begin());
-                        this->fun = clas->getMethod(funName,arguments);
-                    }break;
-                    case Operand::EXPRESSION:{
-                        auto clas = (Class*)this->operands.front().pointer;
+                    case Operand::INT:
+                    case Operand::STRING:
+                        case Operand::EXPRESSION:{
+                        auto clas = operands.front().getType(mp);
                         arguments.erase(arguments.begin());
                         this->fun = clas->getMethod(funName,arguments);
                     }break;
@@ -212,9 +189,8 @@ namespace felan {
                 }
                 if(this->fun == nullptr){
                     if(funName == "__assign__" &&
-                    this->operands.front().getType()
-                    == this->operands.back().getType() &&
-                    this->operands.front().kind == Operand::VARIABLE){
+                            this->operands.front().getType(mp) == this->operands.back().getType(mp) &&
+                            this->operands.front().kind == Operand::VARIABLE){
                         this->fun = &Fun::assign;
                     }else{
                         throw std::runtime_error("no fun found");
@@ -223,13 +199,29 @@ namespace felan {
                 break;
             case Node::ST_FUN_CALL:
                 if(node.operands.front().equals(Node::OP_DOT)){
+                    //todo delete these
                     auto elP = doDot(node.operands.front(),mp,parentFun);
                     if(elP->kind != Package::Element::FUN){
                         throw std::runtime_error("no function found");
                     }
-                    fun = (Fun*)elP->pointer;
-                    //todo make this one correct and delete the past
-                    //auto pair = dotToString(node.operands.front());
+                    auto tempFunP = (Fun*)elP->pointer;
+                    auto funP = Fun(tempFunP->name);
+                    funP.arguments = arguments;
+                    if(funP == *tempFunP){
+                        fun = (Fun*)elP->pointer;
+                    }else{
+                        auto fParent = tempFunP->parent;
+                        switch(fParent.kind){//todo
+                            case Parent::NONE:
+                                break;
+                            case Parent::PACKAGE:
+                                break;
+                            case Parent::CLASS:
+                                break;
+                            case Parent::FUN:
+                                break;
+                        }
+                    }
                 }else{
                     funName = node.operands.front().str;
                     if(parentFun->parent.kind == Parent::CLASS){

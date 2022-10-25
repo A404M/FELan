@@ -201,7 +201,7 @@ namespace felan {
         return result;
     }
 
-    Package::Element *Package::getByPath(const std::string &path, Package::Element::Kind kind) {
+    Package::Element *Package::getClassOrPackageByPath(const std::string &path, Package::Element::Kind kind) {
         auto it = std::find(path.begin(),path.end(),'.');
         if(it != path.end()){
             std::string str = {path.begin(),it};
@@ -211,7 +211,7 @@ namespace felan {
                 if(clas != nullptr){
                     throw std::runtime_error("multiple finding");
                 }
-                return pack->getByPath({it+1,path.end()},kind);
+                return pack->getClassOrPackageByPath({it + 1, path.end()}, kind);
             }else if(clas != nullptr){
                 return clas->findAny({it+1,path.end()});
             }else{
@@ -220,7 +220,7 @@ namespace felan {
         }
 
         auto p = this->findAny(path);
-        if(p == nullptr || p->kind == kind)
+        if(p != nullptr && p->kind == kind)
             return p;
         else
             return nullptr;

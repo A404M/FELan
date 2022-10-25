@@ -17,7 +17,6 @@ namespace felan {
         typedef std::map<Node,std::string>  OpToStr;
     private:
         static const OpToStr opToStr;
-        static std::vector<std::string> values;
     public:
         struct Operand{
             enum Kind {
@@ -38,7 +37,7 @@ namespace felan {
 
             ~Operand();
 
-            Class *getType();
+            Class *getType(MakePackage *mp) const;
         };
 
         Fun *fun;

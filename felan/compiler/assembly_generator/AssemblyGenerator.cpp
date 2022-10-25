@@ -217,14 +217,14 @@ namespace felan {
 
     std::string AssemblyGenerator::getSign(Fun *fun) {
         static Class *Int =
-                (Class*)MakePackage::rootPackage
-                .getByPath(
-                        "felan.lang.primitive.Int",
-                        Package::Element::CLASS
-                );
+                (Class*) MakePackage::rootPackage
+                        .getClassOrPackageByPath(
+                                "felan.lang.primitive.Int",
+                                Package::Element::CLASS
+                        );
         static Class *String =
-                (Class*)MakePackage::rootPackage
-                        .getByPath(
+                (Class*) MakePackage::rootPackage
+                        .getClassOrPackageByPath(
                                 "felan.lang.string.String",
                                 Package::Element::CLASS
                         );

@@ -20,7 +20,7 @@ namespace felan {
         Attribute attribute;
         std::string name;
         Parent father;
-        std::vector<Package::Element> members;
+        Package members;
         std::vector<Node> bodyNodes;
 
         Class(Node &node, MakePackage *mp, Package *_father);

@@ -10,12 +10,13 @@ namespace felan {
     Class::Class(Node &node, MakePackage *mp, Package *_father) :
             attribute(node),
             name(std::move(node.operands.front().str)),
-            father(_father) {
+            father(_father),
+            members("",_father){
         bodyNodes = std::move(node.operands.back().operands);
         node.operands.clear();
     }
 
-    Class::Class(std::string _name) : name(std::move(_name)) {
+    Class::Class(std::string _name) : name(std::move(_name)), members("", nullptr) {
         //empty
     }
 
@@ -25,13 +26,13 @@ namespace felan {
                 case Node::ST_CLASS:
                     throw SyntaxError("no class allowed inside class");
                 case Node::ST_FUN:
-                    this->members.emplace_back(
+                    this->members.push(
                             new Fun(n,mp,Parent(this)),
                             Package::Element::FUN,
                             true);
                     break;
                 case Node::ST_VAR:
-                    this->members.emplace_back(
+                    this->members.push(
                             new Variable(n,mp,Parent(this)),
                             Package::Element::VARIABLE,
                             true);
@@ -52,7 +53,7 @@ namespace felan {
     }
 
     void Class::completeBody(MakePackage *mp) {
-        for(auto &el : this->members){
+        for(auto &el : this->members.elements){
             switch(el.kind){
                 case Package::Element::FUN:
                     ((Fun *) el.pointer)->completeBody(mp);
@@ -73,20 +74,12 @@ namespace felan {
     Fun *Class::getMethod(std::string_view str, std::vector<Class *> arguments) {
         auto f = Fun(std::string(str));
         f.arguments = std::move(arguments);
-        auto it = std::find_if(this->members.begin(),this->members.end(),
-                               [&f](const Package::Element &member){
-            return member.kind == Package::Element::FUN &&
-            f == *(Fun*)member.pointer;
-        });
-        return it!=this->members.end()?(Fun*)it->pointer:nullptr;
+        auto p = this->members.find(&f,Package::Element::FUN);
+        return p!=nullptr?(Fun*)p->pointer:nullptr;
     }
 
     Package::Element *Class::findAny(std::string_view elName) {
-        auto it = std::find_if(this->members.begin(),this->members.end(),
-                             [elName](const Package::Element &member){
-            return elName == member.getName();
-        });
-        return it != this->members.end()?&*it:nullptr;
+        return this->members.findAny(elName);
     }
 
     bool operator==(const Class &clas1, const Class &clas2) {

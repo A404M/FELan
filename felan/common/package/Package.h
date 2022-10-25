@@ -64,6 +64,11 @@ namespace felan {
         ElementHolder elements;
 
         Package(std::string _name,Package *_father,std::vector<Element> _elements = {});
+        Package(const Package &) = delete;
+        Package(Package &&) = delete;
+
+        Package &operator=(const Package &) = delete;
+        Package &operator=(Package &&) = delete;
 
         void clear(){
             elements.clear();
@@ -79,7 +84,7 @@ namespace felan {
         void *find(std::string_view elName, Element::Kind kind);
         Element *findAny(std::string_view elName);
         Class *findInAnyLevel(const std::string &className,Element::Kind kind);
-        Element *getByPath(const std::string &path, Element::Kind kind);
+        Element *getClassOrPackageByPath(const std::string &path, Element::Kind kind);
 
         bool hasPackage(const std::string &packageName);
         bool hasClass(const std::string &className);

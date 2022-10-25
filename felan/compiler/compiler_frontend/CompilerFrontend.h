@@ -16,16 +16,17 @@ namespace felan {
     private:
         std::string projectDir;
         std::map<std::string,std::string> consts;
-        std::map<std::string,Parser> fileCache;
-        std::map<std::string,MakePackage> makeFiles;
+        std::map<std::string,MakePackage*> makeFiles;
 
     public:
         explicit CompilerFrontend(std::string_view _projectDir);
 
+        ~CompilerFrontend();
+
         std::string parseStringWithConsts(std::string str);
 
         std::string compile();
-        Parser &getParsed(const std::string &fileName);
+        static Parser getParsed(const std::string &fileName);
 
         MakePackage &getMakeFile(const std::string &filePath);
         std::string getFilePath(Package const*package);

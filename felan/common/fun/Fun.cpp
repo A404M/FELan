@@ -5,6 +5,8 @@
 #include "Fun.h"
 #include <felan/compiler/make_package/MakePackage.h>
 #include <felan/common/expression/Expression.h>
+#include <algorithm>
+#include <felan/common/class/Class.h>
 
 namespace felan {
 

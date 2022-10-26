@@ -48,6 +48,7 @@ namespace felan {
     private:
         void doVarOperand(std::string_view varName,MakePackage *mp,Fun *parentFun);
         static Package::Element *doDot(Node &n, MakePackage *mp, Fun *parentFun);
+        static std::pair<Package::Element *,std::string> doBeforeDot(Node &n, MakePackage *mp, Fun *parentFun);
         static std::pair<std::string,std::string> dotToString(Node &n);
     };
 

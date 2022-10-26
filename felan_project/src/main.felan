@@ -3,18 +3,17 @@ from felan.lang.primitive   import *
 //from felan.lang.string      import *
 
 fun f(var v:Int,var v2:Int){
-    println()
+    //println()
     println(v)
-    println(v2)
+    print(v2)
 }
 
 fun main(){
     //var str:String = String.__constructor__()
     //val str:String = String.__constructor("a\\")
-    var a:Int = Int.__constructor__()
-    a = 4
+    var a:Int = Int.__constructor__(2)
     var f:Int = Int.__constructor__()
-    f = 3+2-4
-    print(a)
+    f = 3+a-4
+    //print(a)
     f(f,a)
 }

@@ -34,7 +34,7 @@ namespace felan {
             f == *(Fun*)element.pointer;
         });
         if(it == end)
-            throw std::runtime_error("no fun found");
+            throw std::runtime_error("no "+std::string(str)+" fun found");
         return (Fun*)it->pointer;
     }
 

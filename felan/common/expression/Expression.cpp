@@ -137,7 +137,7 @@ namespace felan {
                             case Package::Element::PACKAGE:
                             case Package::Element::CLASS:
                             case Package::Element::FUN:
-                                throw std::runtime_error(std::string(elP->getName()) + "is not a operand");
+                                throw SyntaxError(std::string(elP->getName()) + "is not a operand");
                             case Package::Element::NONE:
                             default:
                                 throw std::runtime_error("unexpected kind");
@@ -199,29 +199,31 @@ namespace felan {
                 break;
             case Node::ST_FUN_CALL:
                 if(node.operands.front().equals(Node::OP_DOT)){
-                    //todo delete these
-                    auto elP = doDot(node.operands.front(),mp,parentFun);
-                    if(elP->kind != Package::Element::FUN){
-                        throw std::runtime_error("no function found");
+                    auto pair = doBeforeDot(node.operands.front(),mp,parentFun);
+                    auto theFun = Fun(pair.second);
+                    theFun.arguments = arguments;
+
+                    Package::Element *elP = nullptr;
+                    switch(pair.first->kind){
+                        case Package::Element::CLASS:
+                            elP = ((Class*)pair.first->pointer)->members.find(&theFun,Package::Element::FUN);
+                            break;
+                        case Package::Element::FUN:
+                            throw std::runtime_error("functions doesn't have any member");
+                        case Package::Element::VARIABLE:
+                            elP = ((Variable*)pair.first->pointer)->type->members.find(&theFun,Package::Element::FUN);
+                            break;
+                        case Package::Element::PACKAGE:
+                            elP = ((Package*)pair.first->pointer)->find(&theFun,Package::Element::FUN);
+                            break;
+                        case Package::Element::NONE:
+                        default:
+                            throw std::runtime_error("broken element");
                     }
-                    auto tempFunP = (Fun*)elP->pointer;
-                    auto funP = Fun(tempFunP->name);
-                    funP.arguments = arguments;
-                    if(funP == *tempFunP){
-                        fun = (Fun*)elP->pointer;
-                    }else{
-                        auto fParent = tempFunP->parent;
-                        switch(fParent.kind){//todo
-                            case Parent::NONE:
-                                break;
-                            case Parent::PACKAGE:
-                                break;
-                            case Parent::CLASS:
-                                break;
-                            case Parent::FUN:
-                                break;
-                        }
+                    if(elP == nullptr){
+                        throw NotFoundError("no function founded");
                     }
+                    fun = (Fun*)elP->pointer;
                 }else{
                     funName = node.operands.front().str;
                     if(parentFun->parent.kind == Parent::CLASS){
@@ -250,8 +252,6 @@ namespace felan {
             default:
                 throw std::runtime_error("unexpected keyword or symbol " + node.str);
         }
-
-
     }
 
     void Expression::doVarOperand(std::string_view varName, MakePackage *mp, Fun *parentFun) {
@@ -312,6 +312,57 @@ namespace felan {
         }
         delete elPFirst;
         return elP;
+    }
+
+    std::pair<Package::Element *,std::string> Expression::doBeforeDot(Node &n, MakePackage *mp, Fun *parentFun) {
+        std::string_view elName = n.operands.front().str;
+        Variable *varP = nullptr;
+        if(parentFun != nullptr)
+            varP = parentFun->findVar(elName);
+        Package::Element *elP;
+        Package::Element *elPFirst = nullptr;
+        if (!varP) {
+            elP = mp->findGlobalID(elName);
+            if (!elP) {
+                elP = MakePackage::rootPackage.findAny(elName);
+                if(!elP){
+                    throw std::runtime_error("no id found "+std::string(elName));
+                }
+            }
+        } else {
+            elP = new Package::Element(varP, Package::Element::VARIABLE, false);
+            elPFirst = elP;//todo change this
+        }
+        auto itNode = n.operands.end() - 1;
+        while (true) {
+            if(elP == nullptr){
+                throw NotFoundError(std::string(elName)+" not found");
+            }
+            if (itNode->equals(Node::OP_DOT)) {
+                itNode = itNode->operands.begin();
+            } else {
+                delete elPFirst;//todo change this
+                return {elP,itNode->str};
+            }
+            elName = itNode->str;
+            switch (elP->kind) {
+                case Package::Element::CLASS:
+                    elP = ((Class *) elP->pointer)->findAny(elName);
+                    break;
+                case Package::Element::PACKAGE:
+                    elP = ((Package *) elP->pointer)->findAny(elName);
+                    break;
+                case Package::Element::VARIABLE:
+                    elP = ((Variable *) elP->pointer)->type->findAny(elName);
+                    break;
+                case Package::Element::FUN:
+                    throw std::runtime_error("no " + std::string(elName) + " found");
+                case Package::Element::NONE:
+                default:
+                    throw std::runtime_error("broken element");
+            }
+            ++itNode;
+        }
     }
 
     std::pair<std::string, std::string> Expression::dotToString(Node &n) {

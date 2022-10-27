@@ -90,6 +90,8 @@ namespace felan {
         bool hasClass(const std::string &className);
         bool hasIncomplete();
 
+        uint64_t size();
+
         static Package *findIncompletePackage(Package *pack);
 
         friend bool operator==(const Package &pack1,const Package &pack2);

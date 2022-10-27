@@ -104,11 +104,11 @@ namespace felan {
                     this->operands.emplace_back(new std::string(n.str),Operand::INT,true);
                     break;
                 case Node::T_ID:{
-                    auto varP = parentFun->findVar(n.str);
-                    if(varP){
-                        this->operands.emplace_back(varP,Operand::VARIABLE,false);
+                    auto elP = parentFun->findVar(n.str);
+                    if(elP){
+                        goto PUSH_ELP;
                     }else{
-                        auto elP = mp->findGlobalID(n.str);
+                        elP = mp->findGlobalID(n.str);
                         if(elP){
                             PUSH_ELP:
                             if(elP->kind != Package::Element::VARIABLE){
@@ -151,7 +151,7 @@ namespace felan {
                     //todo change later
                     auto varName = n.operands.front().str;
                     Expression(n, mp, parentFun);
-                    this->operands.emplace_back(parentFun->findVar(varName), Operand::VARIABLE,false);
+                    this->operands.emplace_back(parentFun->findVar(varName)->pointer, Operand::VARIABLE,false);
                 }break;
                 case Node::T_SML:
                 case Node::T_NONE:
@@ -211,6 +211,8 @@ namespace felan {
                         case Package::Element::FUN:
                             throw std::runtime_error("functions doesn't have any member");
                         case Package::Element::VARIABLE:
+                            this->operands.emplace(this->operands.begin(),pair.first->pointer,Operand::VARIABLE,pair.first->owns);
+                            pair.first->owns = false;
                             elP = ((Variable*)pair.first->pointer)->type->members.find(&theFun,Package::Element::FUN);
                             break;
                         case Package::Element::PACKAGE:
@@ -255,21 +257,15 @@ namespace felan {
     }
 
     void Expression::doVarOperand(std::string_view varName, MakePackage *mp, Fun *parentFun) {
-        auto *var = parentFun->findVar(varName);
-        if(var == nullptr){
-            var = mp->findVar(varName);
-        }
+        auto elP = parentFun->findVar(varName);
+        auto *var = elP?elP->pointer:mp->findVar(varName);
         operands.emplace_back(var,Operand::VARIABLE,false);
     }
 
     Package::Element *Expression::doDot(Node &n, MakePackage *mp, Fun *parentFun) {
         std::string_view elName = n.operands.front().str;
-        Variable *varP = nullptr;
-        if(parentFun != nullptr)
-            varP = parentFun->findVar(elName);
-        Package::Element *elP;
-        Package::Element *elPFirst = nullptr;
-        if (!varP) {
+        Package::Element *elP = parentFun->findVar(elName);
+        if (!elP) {
             elP = mp->findGlobalID(elName);
             if (!elP) {
                 elP = MakePackage::rootPackage.findAny(elName);
@@ -277,9 +273,6 @@ namespace felan {
                     throw std::runtime_error("no id found "+std::string(elName));
                 }
             }
-        } else {
-            elP = new Package::Element(varP, Package::Element::VARIABLE, false);
-            elPFirst = elP;
         }
         auto itNode = n.operands.end() - 1;
         while (true) {
@@ -310,18 +303,13 @@ namespace felan {
                 break;
             ++itNode;
         }
-        delete elPFirst;
         return elP;
     }
 
     std::pair<Package::Element *,std::string> Expression::doBeforeDot(Node &n, MakePackage *mp, Fun *parentFun) {
         std::string_view elName = n.operands.front().str;
-        Variable *varP = nullptr;
-        if(parentFun != nullptr)
-            varP = parentFun->findVar(elName);
-        Package::Element *elP;
-        Package::Element *elPFirst = nullptr;
-        if (!varP) {
+        Package::Element *elP = parentFun->findVar(elName);
+        if (!elP) {
             elP = mp->findGlobalID(elName);
             if (!elP) {
                 elP = MakePackage::rootPackage.findAny(elName);
@@ -329,9 +317,6 @@ namespace felan {
                     throw std::runtime_error("no id found "+std::string(elName));
                 }
             }
-        } else {
-            elP = new Package::Element(varP, Package::Element::VARIABLE, false);
-            elPFirst = elP;//todo change this
         }
         auto itNode = n.operands.end() - 1;
         while (true) {
@@ -341,7 +326,6 @@ namespace felan {
             if (itNode->equals(Node::OP_DOT)) {
                 itNode = itNode->operands.begin();
             } else {
-                delete elPFirst;//todo change this
                 return {elP,itNode->str};
             }
             elName = itNode->str;

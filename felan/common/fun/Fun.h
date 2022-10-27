@@ -18,7 +18,8 @@ namespace felan {
         Attribute attribute;
         std::string name;
         std::vector<Class *> arguments;
-        std::vector<Variable*> vars;
+        //std::vector<Variable*> vars;
+        Package vars;
         Class *retType = nullptr;
         std::vector<Expression> body;
         Parent parent = Parent();
@@ -40,7 +41,7 @@ namespace felan {
 
         void completeBody(MakePackage *mp);
 
-        Variable *findVar(std::string_view varName);
+        Package::Element *findVar(std::string_view varName);
         Variable *addVar(Node &node, MakePackage *mp);
 
         int64_t getVarID(Variable *var);

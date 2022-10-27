@@ -15,7 +15,8 @@ namespace felan {
     Fun::Fun(Node &node, MakePackage *mp,Parent _parent) :
     attribute(node),
     name(std::move(node.operands.front().str)),
-    parent(_parent) {
+    vars("", nullptr),
+    parent(_parent){
 
         auto it = node.operands.begin()+1;
         auto &params = it->operands;
@@ -24,8 +25,9 @@ namespace felan {
             if(param.sToken != Node::ST_VAR){
                 throw SyntaxError("params only can be vars");
             }
-            vars.emplace_back(new Variable(param,mp,Parent(this)));
-            arguments.emplace_back(vars.back()->type);
+            auto varP = new Variable(param,mp,Parent(this));
+            vars.push(varP,Package::Element::VARIABLE,true);
+            arguments.emplace_back(varP->type);
         }
         ++it;
 
@@ -69,14 +71,17 @@ namespace felan {
         }
     }
 
-    Fun::Fun(std::string _name) : name(std::move(_name)){
+    Fun::Fun(std::string _name) :
+    name(std::move(_name)),
+    vars("", nullptr){
         //empty
     }
 
     Fun::~Fun() {
-        for(auto &var : this->vars){
+        //as far as vars is package there is no need to delete manually
+        /*for(auto &var : this->vars){
             delete var;
-        }
+        }*/
     }
 
     bool Fun::isIncomplete() const {
@@ -93,28 +98,35 @@ namespace felan {
 
     Variable *Fun::addVar(Node &node, MakePackage *mp) {
         auto varP = new Variable(node,mp,Parent(this));
-        for(const auto &variable : this->vars){
+        /*for(const auto &variable : this->vars){
             if(variable->name == varP->name){
                 std::string temp = std::move(varP->name);
                 delete varP;
                 throw SyntaxError("multiple definition of variable "+temp);
             }
+        }*/
+        if(this->vars.find(varP,Package::Element::VARIABLE)){
+            std::string temp = std::move(varP->name);
+            delete varP;
+            throw SyntaxError("multiple definition of variable "+temp);
         }
-        return this->vars.emplace_back(varP);
+        //return this->vars.emplace_back(varP);
+        return (Variable*)this->vars.push(varP,Package::Element::VARIABLE,true);
     }
 
-    Variable *Fun::findVar(std::string_view varName){
-        for(auto &var : this->vars){
+    Package::Element *Fun::findVar(std::string_view varName){
+        /*for(auto &var : this->vars){
             if(varName == var->name){
                 return var;
             }
         }
-        return nullptr;
+        return nullptr;*/
+        return this->vars.findAny(varName);
     }
 
     int64_t Fun::getVarID(Variable *var) {
-        for(int64_t i = 0;i < this->vars.size();++i){
-            if(this->vars[i] == var){
+        for(int64_t i = 0;i < this->vars.elements.size();++i){
+            if(this->vars.elements[i].pointer == var){
                 return i;
             }
         }

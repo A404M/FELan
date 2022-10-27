@@ -171,7 +171,7 @@ namespace felan {
         return (it!=elements.end())?it.base()->pointer: nullptr;
     }
 
-    Package::Element *Package::findAny(const std::string_view elName) {
+    Package::Element *Package::findAny(std::string_view elName) {
         auto it = std::find_if(elements.begin(), elements.end(),
                                [elName](const Element &element) {
                                    return elName == element.getName();
@@ -258,6 +258,10 @@ namespace felan {
         }
 
         return nullptr;
+    }
+
+    uint64_t Package::size() {
+        return this->elements.size();
     }
 
     bool operator==(const Package &pack1, const Package &pack2) {
